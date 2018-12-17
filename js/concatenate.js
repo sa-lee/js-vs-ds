@@ -1,11 +1,15 @@
 const concatenate = (language, keys, keyToPath, getDoc) => {
   const chapters = keys
 	.map(key => ({key, path: keyToPath(key)}))
-	.map(({key, path}) => ({key, doc: getDoc(path)}))
+	.map( async ({key, path}) => {
+    let doc = await getDoc(path)
+    return ({key, doc})
+  })
 	.map(({key, doc}) => transformHeadings(doc, key))
 	.map(doc => doc.querySelector('div.main'))
 	.map(doc => transformHrefs(doc, language))
 	.map(doc => cleanup(doc))
+  console.log(chapters)
   return chapters
 }
 

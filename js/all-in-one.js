@@ -25,13 +25,24 @@ const makeUrl = (language, key) => {
   return url
 }
 
-const getDocFromUrl = (url) => {
-  const request = new XMLHttpRequest()
-  request.open('GET', url, false) // force blocking
-  request.send(null)
-  const element = document.createElement('html')
-  element.innerHTML = request.responseText
-  return element
+const getDocFromUrl = async (url) => {
+  const el = await new Promise((resolve,reject) => {
+    let request = new XMLHttpRequest()
+    request.onreadystatechange = () => {
+      if (request.readyState === 4) {
+        if (request.status === 200) {
+          const element = document.createElement('html')
+          element.innerHTML = request.responseText
+          resolve(element)
+        } else {
+          reject(Error(`got HTTP status code ${request.status} for URL ${url}`))
+        }
+      }
+    }
+    request.open('GET', url, true)
+    request.send('null')
+  }).catch(e => console.error(e))
+  return el
 }
 
 const MAIN_FRAME = `<div class="row">
